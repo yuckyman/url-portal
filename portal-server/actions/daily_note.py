@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, Any
 import shutil
 import re
+from urllib.parse import quote
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,20 @@ class DailyNoteAction:
             result = result.replace(placeholder, value)
         
         return result
+
+    def _build_working_copy_url(self, file_path: Path) -> str:
+        """Build a Working Copy URL for the given repo-relative path."""
+        from config import Config
+
+        rel_path = file_path.relative_to(self.repo_path).as_posix()
+        encoded_path = quote(rel_path)
+        encoded_repo = quote(Config.WORKING_COPY_REPO) if Config.WORKING_COPY_REPO else ''
+        template = Config.WORKING_COPY_URL_TEMPLATE
+
+        try:
+            return template.format(path=encoded_path, repo=encoded_repo)
+        except Exception:
+            return template
     
     async def _ensure_template_exists(self) -> bool:
         """
@@ -237,6 +252,8 @@ class DailyNoteAction:
                 result['warning'] = 'Daily note created but git operations failed'
             else:
                 result['git_success'] = True
+
+        daily_note_path = self._get_daily_note_path()
+        result['working_copy_url'] = self._build_working_copy_url(daily_note_path)
         
         return result
-

@@ -23,6 +23,11 @@ class Config:
     # Git configuration
     GIT_USER_NAME = os.getenv('GIT_USER_NAME', 'Wintermute Portal')
     GIT_USER_EMAIL = os.getenv('GIT_USER_EMAIL', 'portal@wintermute.local')
+
+    # Working Copy (iOS) URL template for opening files.
+    # Repo is static for the primary vault: http://yuckbox:3000/ian/wintermute
+    WORKING_COPY_REPO = 'ian/wintermute'
+    WORKING_COPY_URL_TEMPLATE = 'working-copy://x-callback-url/open?repo={repo}&path={path}'
     
     # Logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
