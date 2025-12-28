@@ -41,3 +41,9 @@ class Config:
     
     # Logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+
+    # Webhook settings
+    PORTAL_WEBHOOK_SECRET = os.getenv('PORTAL_WEBHOOK_SECRET', '')
+    PORTAL_WEBHOOK_TTL_SECONDS = int(os.getenv('PORTAL_WEBHOOK_TTL_SECONDS', '300'))
+    PORTAL_WORKERS = int(os.getenv('PORTAL_WORKERS', '1'))
+    PORTAL_DEDUP_WINDOW_SECONDS = int(os.getenv('PORTAL_DEDUP_WINDOW_SECONDS', '60'))
