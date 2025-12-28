@@ -173,3 +173,8 @@ After deployment to yuckbox:
 - Advanced template system
 - Agent spawning capabilities
 - Working Copy integration
+
+## Mac Listener
+
+Standalone listener for opening apps/URLs on your Mac lives in `mac-listener/`.
+See `mac-listener/README.md` for setup and security requirements.

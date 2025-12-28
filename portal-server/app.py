@@ -105,13 +105,94 @@ async def portal_handler(portal_id: str):
         
         logger.info(f"Portal {portal_id} requested, action: {action}")
         
-        # Return portal info (iPhone shortcut will call /wm/act to execute)
-        return jsonify({
+        # Decide response format (html default, json when requested)
+        format_param = (request.args.get('format') or '').lower()
+        accept = request.headers.get('Accept', '')
+        wants_json = format_param == 'json' or 'application/json' in accept
+
+        response_payload = {
             'portal_id': portal_id,
             'action': action,
             'config': portal_config,
-            'execute_url': f'/wm/act'
-        })
+            'execute_url': '/wm/act'
+        }
+
+        if wants_json:
+            return jsonify(response_payload)
+
+        # HTML: show a run button that the user taps (iOS Safari-safe).
+        shortcut_name = 'WM Portal'
+        shortcut_url = (
+            'shortcuts://run-shortcut?name=WM%20Portal&input=text&text='
+            f'{portal_id}'
+        )
+        debug_json_url = f'/wm/p/{portal_id}?format=json'
+        portal_label = portal_config.get('label', action)
+
+        html = f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wintermute Portal</title>
+    <style>
+      body {{
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 2rem;
+        color: #111;
+        background: #f8f8f8;
+      }}
+      .card {{
+        max-width: 520px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+      }}
+      .title {{
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+      }}
+      .subtitle {{
+        color: #555;
+        margin-bottom: 1.25rem;
+      }}
+      .btn {{
+        display: block;
+        text-align: center;
+        padding: 16px;
+        border-radius: 12px;
+        background: #111;
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.05rem;
+        font-weight: 600;
+      }}
+      .btn.secondary {{
+        margin-top: 12px;
+        background: #eee;
+        color: #111;
+      }}
+      .meta {{
+        margin-top: 16px;
+        font-size: 0.9rem;
+        color: #666;
+      }}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="title">portal: {portal_id} → {portal_label}</div>
+      <div class="subtitle">Tap to run via Shortcuts</div>
+      <a class="btn" href="{shortcut_url}">Run Portal</a>
+      <a class="btn secondary" href="{debug_json_url}">Debug JSON</a>
+      <div class="meta">Shortcut: {shortcut_name}</div>
+    </div>
+  </body>
+</html>
+"""
+        return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
         
     except FileNotFoundError as e:
         logger.error(f"Portals config not found: {e}")

@@ -5,6 +5,12 @@ Configuration for the Wintermute Portal Router.
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+
+_ENV_PATH = Path(__file__).resolve().parents[1] / '.env'
+load_dotenv(_ENV_PATH)
+
 
 class Config:
     """Application configuration."""
@@ -26,8 +32,12 @@ class Config:
 
     # Working Copy (iOS) URL template for opening files.
     # Repo is static for the primary vault: http://yuckbox:3000/ian/wintermute
-    WORKING_COPY_REPO = 'ian/wintermute'
-    WORKING_COPY_URL_TEMPLATE = 'working-copy://x-callback-url/open?repo={repo}&path={path}'
+    WORKING_COPY_REPO = 'wintermute'
+    WORKING_COPY_URL_KEY = os.getenv('WC_URL_KEY', '')
+    WORKING_COPY_URL_TEMPLATE = (
+        'working-copy://x-callback-url/read?repo={repo}&path={path}{key_param}'
+        '&type=auto&clipboard=no'
+    )
     
     # Logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
