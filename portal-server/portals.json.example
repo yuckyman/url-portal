@@ -1,0 +1,19 @@
+{
+  "dly": {
+    "action": "open_daily"
+  },
+  "h2o": {
+    "action": "add_water",
+    "delta": 64
+  },
+  "new": {
+    "action": "new_file"
+  },
+  "mac": {
+    "action": "open_on_mac"
+  },
+  "agent": {
+    "action": "spawn_agent"
+  }
+}
+
