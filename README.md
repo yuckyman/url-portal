@@ -4,7 +4,7 @@ QR code-based interface for interacting with the wintermute vault repository.
 
 ## Architecture
 
-1. **QR Codes** → Stable URLs: `https://yuckbox/wm/p/<id>`
+1. **QR Codes** → Stable URLs: `https://yuckbox.spillyourguts.online/wm/p/<id>`
 2. **Yuckbox Portal Router** → Quart server mapping portal IDs to actions
 3. **iPhone Shortcut** → Glue layer triggering actions
 
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ```bash
 export WINTERMUTE_REPO_PATH=/path/to/wintermute
 export WM_PORTAL_HOST=0.0.0.0
-export WM_PORTAL_PORT=8080
+export WM_PORTAL_PORT=8090
 ```
 
 3. Run the server:
@@ -48,7 +48,7 @@ pip install -r requirements.txt
 ```bash
 export WINTERMUTE_REPO_PATH=/home/ian/WINTERMUTE
 export WM_PORTAL_HOST=0.0.0.0
-export WM_PORTAL_PORT=8080
+export WM_PORTAL_PORT=8090
 ```
 
 4. Run as a service (systemd, supervisor, etc.) or use a process manager.
@@ -71,7 +71,14 @@ Portals are configured in `0_admin/00_index/portals.json` in the wintermute repo
 
 - `GET /wm/p/<id>` - Get portal information
 - `POST /wm/act` - Execute a portal action
+- `GET /wm/endpoints` - List available endpoints
 - `GET /health` - Health check
+ 
+## Current Deployment
+
+- Public URL (Tailscale-only): `https://yuckbox.spillyourguts.online`
+- Reverse proxy: Caddy with handle blocks for `/wm/*` and `/health`
+- Portal server: Quart on port `8090`
 
 ## Actions
 
@@ -112,34 +119,37 @@ This tests:
 
 After deployment to yuckbox:
 
-1. **Verify SSH/HTTPS access**:
+1. **Verify HTTPS access**:
    ```bash
-   ssh ian@yuckbox
-   curl https://yuckbox/health
+   curl https://yuckbox.spillyourguts.online/health
    ```
 
 2. **Test portal endpoint**:
    ```bash
-   curl https://yuckbox/wm/p/dly
+   curl https://yuckbox.spillyourguts.online/wm/p/dly
    ```
 
 3. **Test action execution**:
    ```bash
-   curl -X POST https://yuckbox/wm/act \
+   curl -X POST https://yuckbox.spillyourguts.online/wm/act \
      -H "Content-Type: application/json" \
      -d '{"portal_id": "dly", "action": "open_daily"}'
    ```
 
-4. **Verify daily note creation**:
+4. **List endpoints**:
    ```bash
-   ssh ian@yuckbox
+   curl https://yuckbox.spillyourguts.online/wm/endpoints
+   ```
+
+5. **Verify daily note creation**:
+   ```bash
    cd /home/ian/WINTERMUTE
    ls -la 1_life/13_journal/$(date +%Y-%m-%d).md
    git log --oneline -1
    ```
 
-5. **Test iPhone shortcut**:
-   - Scan QR code with URL: `https://yuckbox/wm/p/dly`
+6. **Test iPhone shortcut**:
+   - Scan QR code with URL: `https://yuckbox.spillyourguts.online/wm/p/dly`
    - Verify shortcut calls portal server
    - Check that daily note is created in repo
 
@@ -163,4 +173,3 @@ After deployment to yuckbox:
 - Advanced template system
 - Agent spawning capabilities
 - Working Copy integration
-

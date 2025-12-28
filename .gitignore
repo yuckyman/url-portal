@@ -34,6 +34,7 @@ venv.bak/
 # IDEs
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
@@ -79,4 +80,3 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
