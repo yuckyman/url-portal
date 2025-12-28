@@ -65,6 +65,7 @@ desktop.ini
 portals.json
 *.example
 !portals.json.example
+*.sh
 
 # Testing
 .pytest_cache/
