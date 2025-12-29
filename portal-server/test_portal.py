@@ -68,8 +68,8 @@ async def test_action_registry():
     registry = ActionRegistry(test_repo)
     
     # Test known action
-    assert 'open_daily' in registry.actions
-    print("  ✓ open_daily action registered")
+    assert 'view_daily' in registry.actions
+    print("  ✓ view_daily action registered")
     
     # Test unknown action
     result = await registry.execute('unknown_action', {})
@@ -128,4 +128,3 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-

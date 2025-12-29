@@ -6,6 +6,7 @@ from typing import Dict, Any, Optional
 import logging
 
 from actions.daily_note import DailyNoteAction
+from actions.hydration import HydrationAction
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,9 @@ class ActionRegistry:
         """
         self.repo_path = repo_path
         self.actions = {
-            'open_daily': DailyNoteAction(repo_path),
+            'view_daily': DailyNoteAction(repo_path, gitea_mode='view'),
+            'edit_daily': DailyNoteAction(repo_path, gitea_mode='edit'),
+            'add_water': HydrationAction(repo_path),
         }
     
     async def execute(self, action_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -56,4 +59,3 @@ class ActionRegistry:
                 'error': str(e),
                 'message': f'Failed to execute action {action_name}'
             }
-

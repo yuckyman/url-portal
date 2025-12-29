@@ -72,3 +72,80 @@
 5. **Documentation**
    - Update README with Working Copy Pro requirement and Shortcuts setup steps.
 
+chatgpt notes:
+
+# v1 iOS shortcut: `WM Portal`
+
+## what you’re *actually* “accepting”
+- when you run a shortcut via `shortcuts://run-shortcut?...&input=text&text=...`, the `text=` becomes **Shortcut Input** automatically — there’s no separate toggle you have to find. you just have to *read* it inside the shortcut. [1]
+
+---
+
+## build it (minimal + reliable)
+
+### 0) create the shortcut
+1. shortcuts app → `+` → **new shortcut**
+2. name it **exactly**: `WM Portal` (the URL scheme matches by name) [1]
+
+### 1) grab the portal_id from shortcut input
+add actions in this order:
+
+1. **Get Text from Input**  
+   - this coerces the shortcut input into text (what you passed as `text=dly`). [5]
+2. **Set Variable** → name: `portal_id`  
+   - value: output of “Get Text from Input” [5]
+3. **If** `portal_id` *is empty*  
+   - **Ask for Input** (prompt: `portal id?`)  
+   - **Set Variable** `portal_id` to the result [3]
+
+✅ at this point: running from a QR deep link gives you `portal_id = dly`, and running manually still works.
+
+---
+
+## wire it to yuckbox `/wm/act` (v1 API call)
+
+4. **Dictionary** (this becomes your JSON body)
+   - `portal_id` : `portal_id`
+   - `request_id` : (for now) `Current Date` (or any unique string)
+   - `context` : (Dictionary)
+     - `tz` : `America/New_York`
+
+5. **Get Contents of URL**
+   - URL: `https://<your-domain>/wm/act`
+   - Method: `POST`
+   - Request Body: `JSON`
+   - JSON: the dictionary above [4]
+
+6. **Quick Look** (or **Show Notification**) with the response (debug)
+
+---
+
+## test link (paste into safari on iphone)
+- `shortcuts://run-shortcut?name=WM%20Portal&input=text&text=dly` [1]
+
+if it opens shortcuts and runs, your “accept input” plumbing is correct.
+
+---
+
+## optional: open an `obsidian_uri` returned by the API
+after “Get Contents of URL”:
+- **Get Dictionary Value** `open` → then `obsidian_uri`
+- **Open URLs** with that value
+
+(this is clean if your `/wm/act` returns `{ "open": { "obsidian_uri": "obsidian://..." } }`.)
+
+---
+
+## share-sheet input (separate concept; not required for QR → shortcuts)
+if you want `WM Portal` to appear in the share sheet (e.g., share a URL to it), enable:
+- shortcut → **Details** → **Show in Share Sheet**
+- then optionally limit accepted input types (URL/text/etc.) [2][4]
+
+---
+
+## references
+[1] Apple Support — “Run a shortcut from a URL” (shortcuts://run-shortcut parameters): https://support.apple.com/guide/shortcuts/run-a-shortcut-from-a-url-apd624386f42/ios  
+[2] Apple Support — “Understanding input types” (share sheet input filtering): https://support.apple.com/guide/shortcuts/input-types-apd7644168e1/ios  
+[3] Apple Support — “Use the Ask for Input action”: https://support.apple.com/guide/shortcuts/use-the-ask-for-input-action-apd68b5c9161/ios  
+[4] Apple Support — “Launch a shortcut from another app” (Show in Share Sheet / input block): https://support.apple.com/guide/shortcuts/launch-a-shortcut-from-another-app-apd163eb9f95/ios  
+[5] Apple Support — “Use variables in Shortcuts” (magic variables / passing action outputs): https://support.apple.com/guide/shortcuts/use-variables-apdd02c2780c/ios  

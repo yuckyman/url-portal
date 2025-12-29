@@ -59,7 +59,8 @@ Portals are configured in `0_admin/00_index/portals.json` in the wintermute repo
 
 ```json
 {
-  "dly": {"action": "open_daily"},
+  "dly": {"action": "view_daily"},
+  "dle": {"action": "edit_daily"},
   "h2o": {"action": "add_water", "delta": 64},
   "new": {"action": "new_file"},
   "mac": {"action": "open_on_mac"},
@@ -82,7 +83,7 @@ Portals are configured in `0_admin/00_index/portals.json` in the wintermute repo
 
 ## Actions
 
-### open_daily
+### view_daily / edit_daily
 
 Creates today's daily note from template if it doesn't exist, then commits and pushes to git.
 
@@ -133,7 +134,7 @@ After deployment to yuckbox:
    ```bash
    curl -X POST https://yuckbox.spillyourguts.online/wm/act \
      -H "Content-Type: application/json" \
-     -d '{"portal_id": "dly", "action": "open_daily"}'
+     -d '{"portal_id": "dle", "action": "edit_daily"}'
    ```
 
 4. **List endpoints**:

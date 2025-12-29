@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
-from quart import Quart, request, jsonify
+from quart import Quart, request, jsonify, redirect
 
 from config import Config
 from actions import ActionRegistry
@@ -322,6 +322,40 @@ async def portal_handler(portal_id: str):
       const statusEl = document.getElementById('status');
       const payload = {payload_json};
 
+      const pollJob = (jobId) => {{
+        const pollInterval = 1000;
+        const poll = () => {{
+          fetch(`/wm/jobs/${{jobId}}`)
+            .then(async (resp) => {{
+              const body = await resp.json().catch(() => ({{}}));
+              if (!resp.ok) {{
+                statusEl.textContent = `Error: ${{body.message || resp.statusText}}`;
+                return;
+              }}
+              if (body.status === 'failed') {{
+                statusEl.textContent = `Error: ${{body.error || 'Job failed'}}`;
+                return;
+              }}
+              if (body.status === 'succeeded') {{
+                const giteaUrl = body.result && body.result.gitea_url;
+                if (giteaUrl) {{
+                  statusEl.textContent = 'Opening note in Gitea...';
+                  window.location.href = giteaUrl;
+                  return;
+                }}
+                statusEl.textContent = 'Completed';
+                return;
+              }}
+              statusEl.textContent = `Status: ${{body.status}}`;
+              setTimeout(poll, pollInterval);
+            }})
+            .catch((err) => {{
+              statusEl.textContent = `Error: ${{err.message}}`;
+            }});
+        }};
+        poll();
+      }};
+
       fetch('/wm/hooks/portal', {{
         method: 'POST',
         headers: {{'Content-Type': 'application/json'}},
@@ -334,6 +368,9 @@ async def portal_handler(portal_id: str):
             return;
           }}
           statusEl.innerHTML = `<strong>Accepted</strong> · Job ${{body.job_id}}`;
+          if (body.job_id) {{
+            pollJob(body.job_id);
+          }}
         }})
         .catch((err) => {{
           statusEl.textContent = `Error: ${{err.message}}`;
@@ -480,7 +517,7 @@ async def action_handler():
     Expected JSON body:
     {
         "portal_id": "dly",
-        "action": "open_daily",
+        "action": "view_daily",
         ...
     }
     """
@@ -508,6 +545,13 @@ async def action_handler():
         result = await action_registry.execute(action, data)
         
         if result.get('success'):
+            gitea_url = result.get('gitea_url')
+            wants_redirect = (
+                request.args.get('redirect') == 'gitea'
+                or request.accept_mimetypes.best == 'text/html'
+            )
+            if gitea_url and wants_redirect:
+                return redirect(gitea_url)
             return jsonify(result), 200
         else:
             return jsonify(result), 500

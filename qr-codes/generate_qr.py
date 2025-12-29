@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Portal URL for daily note
 # Using direct Tailscale IP (temporary until DNS is configured)
-PORTAL_URL = "http://100.89.92.75:8090/wm/p/dly"
+PORTAL_URL = "https://yuckbox.spillyourguts.online/wm/p/dle"
 OUTPUT_FILE = Path(__file__).parent / "qr_daily_note.png"
 
 def generate_qr_code(url: str, output_path: Path):

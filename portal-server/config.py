@@ -38,6 +38,10 @@ class Config:
         'working-copy://x-callback-url/read?repo={repo}&path={path}{key_param}'
         '&type=auto&clipboard=no'
     )
+
+    # Gitea web URL for opening files in the browser.
+    GITEA_BASE_URL = os.getenv('GITEA_BASE_URL', 'http://yuckbox:3000/ian/wintermute')
+    GITEA_BRANCH = os.getenv('GITEA_BRANCH', 'main')
     
     # Logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

@@ -59,12 +59,12 @@ For the "dly" portal specifically:
 
 1. Scan QR code with URL: `https://yuckbox/wm/p/dly`
 2. Shortcut extracts "dly" as portal_id
-3. Calls `GET /wm/p/dly` → gets `{"action": "open_daily"}`
+3. Calls `GET /wm/p/dly` → gets `{"action": "view_daily"}`
 4. Calls `POST /wm/act` with:
    ```json
    {
      "portal_id": "dly",
-     "action": "open_daily"
+     "action": "view_daily"
    }
    ```
 5. Server creates daily note, commits, pushes
@@ -83,4 +83,3 @@ The shortcut should handle:
 - Invalid portal IDs
 - Action execution failures
 - Display appropriate error messages to the user
-

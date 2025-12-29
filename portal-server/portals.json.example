@@ -1,10 +1,14 @@
 {
   "dly": {
-    "action": "open_daily"
+    "action": "view_daily"
+  },
+  "dle": {
+    "action": "edit_daily"
   },
   "h2o": {
     "action": "add_water",
-    "delta": 64
+    "delta": 64,
+    "dry_run": true
   },
   "new": {
     "action": "new_file"
@@ -16,4 +20,3 @@
     "action": "spawn_agent"
   }
 }
-

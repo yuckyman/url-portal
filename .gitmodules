@@ -1,0 +1,3 @@
+[submodule "qr-codes/phomemo"]
+	path = qr-codes/phomemo
+	url = https://github.com/yuckyman/phomemo_m02

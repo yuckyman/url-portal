@@ -17,16 +17,18 @@ logger = logging.getLogger(__name__)
 class DailyNoteAction:
     """Action to create or open the daily note."""
     
-    def __init__(self, repo_path: str):
+    def __init__(self, repo_path: str, gitea_mode: str = "edit"):
         """
         Initialize the daily note action.
         
         Args:
             repo_path: Path to the wintermute repository
+            gitea_mode: "edit" or "view" for default Gitea link behavior
         """
         self.repo_path = Path(repo_path)
         self.template_path = self.repo_path / '0_admin' / '02_templates' / 'daily_note_2026.md'
         self.journal_path = self.repo_path / '1_life' / '13_journal'
+        self.gitea_mode = gitea_mode
     
     def _get_today_filename(self) -> str:
         """Get today's date in YYYY-MM-DD format."""
@@ -93,6 +95,19 @@ class DailyNoteAction:
         rel_path = file_path.relative_to(self.repo_path).as_posix()
         encoded_path = quote(rel_path)
         return f'obsidian://open?vault=WINTERMUTE&file={encoded_path}'
+
+    def _build_gitea_url(self, file_path: Path, mode: str | None = None) -> str:
+        """Build a Gitea URL for the given repo-relative path."""
+        from config import Config
+
+        rel_path = file_path.relative_to(self.repo_path).as_posix()
+        encoded_path = quote(rel_path)
+        base_url = Config.GITEA_BASE_URL.rstrip('/')
+        branch = quote(Config.GITEA_BRANCH)
+        use_mode = (mode or self.gitea_mode).lower()
+        if use_mode == "view":
+            return f'{base_url}/src/branch/{branch}/{encoded_path}'
+        return f'{base_url}/_edit/{branch}/{encoded_path}'
     
     async def _ensure_template_exists(self) -> bool:
         """
@@ -268,5 +283,8 @@ class DailyNoteAction:
         daily_note_path = self._get_daily_note_path()
         result['working_copy_url'] = self._build_working_copy_url(daily_note_path)
         result['obsidian_uri'] = self._build_obsidian_uri(daily_note_path)
+        result['gitea_url'] = self._build_gitea_url(daily_note_path)
+        result['gitea_view_url'] = self._build_gitea_url(daily_note_path, mode="view")
+        result['gitea_edit_url'] = self._build_gitea_url(daily_note_path, mode="edit")
         
         return result
